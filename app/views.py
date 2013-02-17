@@ -1,13 +1,15 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 import os, traceback, sys
-from app.models import Event, School, Teacher, Graduation, Demographic
+from app.models import Event, School, Teacher, Graduation, Demographic, Final
 from django.core import serializers
 import requests, json
-from django.views.decorators.csrf import csrf_exempt   
+from django.views.decorators.csrf import csrf_exempt
 import csv
 from csv import reader
 from django.shortcuts import redirect
+import bitly_api
+from embedly import Embedly
 
 def index(request):
 
@@ -31,6 +33,38 @@ def index(request):
 # 		request,
 # 		'index.html')
 
+
+def filter_from_bitly(bitly_link, bitly_connection, category):
+	c = bitly_connection
+	if category in c.link_category(bitly_link):
+		return True
+	else:
+		return False
+
+def search_from_bitly(query, token, category='Education'):
+	c = bitly_api.Connection(access_token=token)
+	retrieved = c.search(query)
+	results = list()
+	for link in retrieved:
+		if filter_from_bitly(link['aggregate_link'],c, category):
+			results.append(link['aggregate_link']) 
+	return results
+
+
+def get_list_from_embedly(bitly_url_links,KEY):
+	client = Embedly(KEY)
+	data_dict = dict()
+	temp_dict = dict()
+	for p,link in enumerate(bitly_url_links):
+		link = client.oembed(link)
+		temp_dict['title'] = link['title']
+		temp_dict['url'] = link['url']
+		temp_dict['thumbnail_url'] = link['thumbnail_url']
+		temp_dict['thumbnail_width'] = link['thumbnail_width']
+		temp_dict['description'] = link['description']
+		data_dict[p] = temp_dict
+	return data_dict
+
 @csrf_exempt 
 def home(request, dbn=None, teacher_id=None):
 
@@ -40,7 +74,7 @@ def home(request, dbn=None, teacher_id=None):
 	graduation = None
 
 	if request.method == 'POST':
-		s_list = School.objects.filter(name=request.POST['school'])
+		s_list = School.objects.filter(dbn=request.POST['school'])
 		if s_list:
 			school = s_list[0]
 			dbn = school.dbn
@@ -49,7 +83,7 @@ def home(request, dbn=None, teacher_id=None):
 	schools = School.objects.all()
 	teachers = []
 	if dbn:
-		teachers = Teacher.objects.filter(dbn=dbn).order_by('teacher_name_first_1').all()
+		teachers = Teacher.objects.filter(dbn=dbn).order_by('teacher_name_first_1').distinct('teacher_name_first_1').all()
 		s_list = School.objects.filter(dbn=dbn)
 		if s_list:
 			school = s_list[0]
@@ -81,6 +115,21 @@ def home(request, dbn=None, teacher_id=None):
 
 	if graduation:
 		s['graduation'] = graduation
+
+	# query = "ny teacher"
+	# TOKEN = "75cd1829b1d41b592520c62617803adb19f1d8f5"
+	# results = search_from_bitly(query, TOKEN)
+	# KEY = '370a46d4db464e15abf6a21fbc33224c'
+	# data_dict = get_list_from_embedly(results, KEY)
+
+	# print data_dict
+
+	# s['thumb1'] = data_dict[0]['thumbnail_url']
+	# s['thumb2'] = data_dict[1]['thumbnail_url']
+
+	# for num in data_dict.keys():
+	# 	data = data_dict[num]
+	# 	s['thumb1'] = data['thumbnail_url']
 
 	return render(
     	request,
@@ -183,45 +232,45 @@ def load(request):
 	# 	except:
 	# 		print traceback.print_exc(file=sys.stdout)
 
-	Graduation.objects.all().delete()
-	csvfile = open('data/grads.csv', 'rb')
-	csvreader = csv.reader(csvfile)
-	i = -1
-	for cols in csvreader:
-		i+=1
-		for i, col in enumerate(cols):
-			cols[i] = (col or 0)
-			if col == 's':
-				cols[i] = 0
-			if '%' in str(col):
-				cols[i] = col.replace('%', '')
-		g = Graduation()
-		g.dbn = ''.join([c for c in cols[0][:10] if c != '"'])
-		g.name = cols[1]
-		g.year = cols[2]
-		if '%' in str(cols[6]):
-			cols[6] = cols[6].replace('%','')
-		g.grads_percent = cols[6]
-		g.regents_num = cols[7]
-		g.regents_percent_total = cols[8]
-		g.regents_percent_grad = cols[9]
-		g.advregents_percent_grad = cols[12]
-		g.othregents_percent_grad = cols[15]
-		g.local_percent_grad = cols[18]
-		g.drop_percent = cols[-1]
-		s_list = School.objects.filter(dbn=g.dbn)
-		if s_list:
-			g.school = s_list[0]
+	# Graduation.objects.all().delete()
+	# csvfile = open('data/grads.csv', 'rb')
+	# csvreader = csv.reader(csvfile)
+	# i = -1
+	# for cols in csvreader:
+	# 	i+=1
+	# 	for i, col in enumerate(cols):
+	# 		cols[i] = (col or 0)
+	# 		if col == 's':
+	# 			cols[i] = 0
+	# 		if '%' in str(col):
+	# 			cols[i] = col.replace('%', '')
+	# 	g = Graduation()
+	# 	g.dbn = ''.join([c for c in cols[0][:10] if c != '"'])
+	# 	g.name = cols[1]
+	# 	g.year = cols[2]
+	# 	if '%' in str(cols[6]):
+	# 		cols[6] = cols[6].replace('%','')
+	# 	g.grads_percent = cols[6]
+	# 	g.regents_num = cols[7]
+	# 	g.regents_percent_total = cols[8]
+	# 	g.regents_percent_grad = cols[9]
+	# 	g.advregents_percent_grad = cols[12]
+	# 	g.othregents_percent_grad = cols[15]
+	# 	g.local_percent_grad = cols[18]
+	# 	g.drop_percent = cols[-1]
+	# 	s_list = School.objects.filter(dbn=g.dbn)
+	# 	if s_list:
+	# 		g.school = s_list[0]
 
-		g.drop_percent = cols[-1]
+	# 	g.drop_percent = cols[-1]
 
-		e_g = Graduation.objects.filter(dbn=g.dbn)
-		if not e_g:			
-			try:
-				g.save()
-			except:
-				print cols
-				print traceback.print_exc(file=sys.stdout)
+	# 	e_g = Graduation.objects.filter(dbn=g.dbn)
+	# 	if not e_g:			
+	# 		try:
+	# 			g.save()
+	# 		except:
+	# 			print cols
+	# 			print traceback.print_exc(file=sys.stdout)
 
 	# Demographic.objects.all().delete()
 	# csvfile = open('data/demo.csv', 'rb')
@@ -247,6 +296,46 @@ def load(request):
 	# 	except:
 	# 		print cols
 	# 		print traceback.print_exc(file=sys.stdout)
+
+	csvfile = open('data/final.csv', 'rb')
+	csvreader = csv.reader(csvfile)
+	i = -1
+	for cols in csvreader:
+		i+=1
+		if i in [0]:
+			continue
+		for i, col in enumerate(cols):
+			cols[i] = (col or 0)
+		dbn = ''.join([c for c in cols[0][:10] if c != '"'])
+		s = School.objects.filter(dbn=dbn)
+		if s:
+			school = s[0]
+			if not school.grade2012:
+				school.grade2012 = cols[-2]
+				school.save()
+		# if not s:
+		# 	school = School(
+		# 		dbn=dbn,
+		# 		name=cols[9])
+		# 	school.save()
+		# d = Demographic.objects.filter(dbn=dbn)
+		# if not d:
+		# 	demographic = Demographic(
+		# 		dbn=dbn,
+		# 		freelunch_reduced_percent=cols[14])
+		# 	demographic.save()
+		# t = Teacher.objects.filter(dbn=dbn)
+		# if t:
+		# 	teacher = t[0]
+		# 	if teacher.va_0607 in [0, None]:
+		# 		teacher.va_0607 = cols[8]
+		# 	if teacher.va_0708 in [0, None]:
+		# 		teacher.va_0708 = cols[6]
+		# 	if teacher.va_0809 in [0, None]:
+		# 		teacher.va_0809 = cols[4]
+		# 	if teacher.va_0910 in [0, None]:
+		# 		teacher.va_0910 = cols[2]
+		# 	teacher.save()
 
 	return render(
     	request,

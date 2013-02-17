@@ -3,8 +3,8 @@
 
 *{
 	margin: 0px;
-	padding: 0px;	
-	font-family: Signika,"DejaVu Sans",Arial,Helvetica,sans-serif;
+	padding: 0px;   
+	font-family: 'Robboto', sans-serif;
 
 }
 
@@ -13,70 +13,86 @@ a{
 
 }
 body{
-background-image: url('../img/zenbg2.png');
-position: relative;
+	background-image: url('../img/zenbg2.png');
+	position: relative;
 }
 
-.nice {
-	border-radius: 8px;
-	box-shadow: 0px 0px 3px 3px #EEE;
-}
-
-.row {
-	border-radius: 5px;
+.action p {
+	font-size: .5em;
 }
 
 .pic{
-float: left;
-margin-left: 5%;
-position: absolute;
-width: 20%;
+	float: left;
+	margin-left: 19%;
+	position: absolute;
+	width: 40%;
+	top: 0;
 }
 .header{
-text-align: center;
-font-size: 3em;
-margin-top: 20px;
+	text-align: center;
+	font-size: 3em;
+	margin-top: 5px;
+	height: 100%;
 }
 
 .container{
 	background: #f7f7f7;
+	margin-top: 50px;
+	margin-bottom: 50px;
+	border-radius: 10px;
+	padding-top: 20px;
 }
 
 .explanation{
-margin-top: 25px;
-padding: 1%;
-background:;
-
+	padding-top: 20px;
 }
 .choose-grade{
-text-align: center;
-margin: 0; 
-background: ;
+	text-align: center;
+	margin: 0;
+	background: ;
 }
 .grades{
-margin-left: 0;
-text-align: center;
+	margin: 0;
+	text-align: center;
 }
+
 .enter-school{
 	text-align: center;
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
+.sub-button{
+	border-bottom: 3px solid #303030;
+	border-radius: 2px;
+}
+.grade-button{
+	border-radius: 2px;
+}
 .letter-styling {
 	background: green;
+}
+.grade-wrap{
+	background: #ccc;
+	width: 50%;
+	margin-left: 25%;
+	border-radius: 4px;
+	height: 100%;
+	padding: 15px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border-bottom: 4px solid #474647;
 }
 .school-name{
 	text-align: center;
 	font-weight: bold;
-	background: red;
 }
 .overall-grade{
 	text-align: center;
-		background: green;
 }
 a:hover{
 	color: black;
-		text-decoration: none;
+    	text-decoration: none;
 }
 .b{
 	font-size: 3em;
@@ -92,29 +108,27 @@ a:hover{
 	background: #ccc;
 }
 
-.grade-wrap{
+.teacher-wrap{
 	background: #ccc;
 	width: 50%;
 	margin-left: 25%;
-	padding: 20px;
-		border-radius: 4px;
-}
-.teacher-wrap{
-		background: #ccc;
-	width: 50%;
-	margin-left: 25%;
-	padding: 20px;	
-	height: 150px;
 	border-radius: 4px;
+	height: 100%;
+	padding: 10px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border-bottom: 4px solid #474647;
 }
 .teacher-list{
+
 }
 .teacher-list li{
 	list-style: none;
-	margin-left: 5%;	
 }
 .teacher-list li a{
- padding: 0 5px 0 5px;
+padding: 0 5px 0 5px;
+margin-left: 17%;
 }
 .graduation-rate{
 	height: 200px;
@@ -125,4 +139,14 @@ a:hover{
 	height: 200px;
 	text-align: center;
 	margin-top: 10px;
+}
+
+.news {
+	text-align: left;
+	margin-left: 3px;
+}
+
+.news-desc {
+	font-size: 12px;
+	text-align: justify;
 }
