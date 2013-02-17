@@ -16,19 +16,19 @@ class School(models.Model):
     principal = models.CharField(max_length=100)
     progress_report_type = models.CharField(max_length=5)
     school_level = models.CharField(max_length=30)
-    peer_index = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
+    peer_index = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True)
     grade2012 = models.CharField(max_length=1, blank=True)
-    score2012 = models.DecimalField(max_digits=3, decimal_places=1, blank=True, null=True)
-    percent2012 = models.DecimalField(max_digits=3, decimal_places=1, blank=True, null=True)
-    prog_score2012 = models.DecimalField(max_digits=3, decimal_places=1, blank=True, null=True)
+    score2012 = models.DecimalField(max_digits=7, decimal_places=1, blank=True, null=True)
+    percent2012 = models.DecimalField(max_digits=7, decimal_places=1, blank=True, null=True)
+    prog_score2012 = models.DecimalField(max_digits=7, decimal_places=1, blank=True, null=True)
     prog_grade2012 = models.CharField(max_length=1, blank=True)
-    perf_category2012 = models.DecimalField(max_digits=3, decimal_places=1, blank=True, null=True)
+    perf_category2012 = models.DecimalField(max_digits=7, decimal_places=1, blank=True, null=True)
     perf_grade2012 = models.CharField(max_length=1, blank=True)
-    environ_score = models.DecimalField(max_digits=3, decimal_places=1, blank=True, null=True)
+    environ_score = models.DecimalField(max_digits=7, decimal_places=1, blank=True, null=True)
     environ_grade = models.CharField(max_length=1, blank=True)
-    readiness_score2012 = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
+    readiness_score2012 = models.DecimalField(max_digits=7, decimal_places=1, blank=True, null=True)
     readiness_grade2012 = models.CharField(max_length=1, blank=True)
-    additional_credit2012 = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
+    additional_credit2012 = models.DecimalField(max_digits=7, decimal_places=1, blank=True, null=True)
     prog_grade2011 = models.CharField(max_length=1, blank=True)
     prog_grade2010 = models.CharField(max_length=1, blank=True)
 
@@ -102,7 +102,6 @@ class Demographic(models.Model):
 	white_percent = models.DecimalField(max_digits=7, decimal_places=1, blank=True, null=True)
 	male_percent = models.DecimalField(max_digits=7, decimal_places=1, blank=True, null=True)
 	female_percent = models.DecimalField(max_digits=7, decimal_places=1, blank=True, null=True)
-
 
 
 

@@ -4,7 +4,10 @@ import os, traceback, sys
 from app.models import Event, School, Teacher, Graduation, Demographic
 from django.core import serializers
 import requests, json
-
+from django.views.decorators.csrf import csrf_exempt   
+import csv
+from csv import reader
+from django.shortcuts import redirect
 
 def index(request):
 
@@ -28,22 +31,38 @@ def index(request):
 # 		request,
 # 		'index.html')
 
+@csrf_exempt 
 def home(request, dbn=None, teacher_id=None):
 
 	school = None
 	teacher = None
+	demographic = None
+	graduation = None
 
+	if request.method == 'POST':
+		s_list = School.objects.filter(name=request.POST['school'])
+		if s_list:
+			school = s_list[0]
+			dbn = school.dbn
+			return redirect('/home/%s' % dbn)
 
 	schools = School.objects.all()
 	teachers = []
 	if dbn:
 		teachers = Teacher.objects.filter(dbn=dbn).order_by('teacher_name_first_1').all()
-		school = School.objects.filter(dbn=dbn)[0]
+		s_list = School.objects.filter(dbn=dbn)
+		if s_list:
+			school = s_list[0]
+		d_list = Demographic.objects.filter(dbn=dbn)
+		if d_list:
+			demographic = d_list[0]
+		g = Graduation.objects.filter(dbn=dbn)
+		if g:
+			graduation = g[0]
+
 
 	if teacher_id:
 		teacher = Teacher.objects.filter(teacher_id=teacher_id)[0]
-		print teacher.name
-
 
 	s = {'teachers': teachers,
     	'schools': schools}
@@ -56,6 +75,12 @@ def home(request, dbn=None, teacher_id=None):
 
 	if dbn:
 		s['dbn'] = dbn
+
+	if demographic:
+		s['demographic'] = demographic
+
+	if graduation:
+		s['graduation'] = graduation
 
 	return render(
     	request,
@@ -86,113 +111,150 @@ def analyze(request, teacher_id):
 
 def load(request):
 	# School.objects.all().delete()
-	# f = open('data/schools.csv')
-	# for line in f.readlines()[3:]:
-	# 	cols = [item for item in line.split(',')][1:]
-	# 	s = School(
-	# 		dbn=cols[0][:10],
-	# 		district=cols[1][:2],
-	# 		name=cols[2][:100],
-	# 		principal=cols[3][:100],
-	# 		progress_report_type=cols[4][:5],
-	# 		school_level=cols[5][:30])#,
-	# 		# peer_index=float(cols[6] or 0),
-	# 		# grade2012=cols[7][:1])#,
-	# 		# score2012=(float(cols[8][:5] or 0) if ,
-	# 		# percent2012=float(cols[9][:5] or 0),
-	# 		# prog_score2012=float(cols[10][:5] or 0),
-	# 		# prog_grade2012=cols[11][:1])#,
-	# 		# perf_category2012=float(cols[12][:5] or 0))#,
-	# 		# perf_grade2012=cols[13][:5],
-	# 		# environ_score=cols[14][:5],
-	# 		# environ_grade=cols[15][:5],
-	# 		# readiness_score2012=cols[16][:5])#,
-	# 		# readiness_grade2012=cols[17][:5],
-	# 		# additional_credit2012=cols[18][:5],
-	# 		# prog_grade2011=cols[19][:5],
-	# 		# prog_grade2010=cols[20][:5])
-	# 	try:
-	# 		s.save()
-	# 	except:
-	# 		print traceback.print_exc(file=sys.stdout)
+	# with open('data/schools.csv', 'rb') as csvfile:
+	# 	csvreader = csv.reader(csvfile)
+	# 	i = -1
+	# 	for cols in csvreader:
+	# 		i+=1
+	# 		if i in (0,1,2):
+	# 			continue
+	# 		cols = cols[1:]
+	# 		for i, col in enumerate(cols):
+	# 			cols[i] = (col or 0)
+	# 		try:
+	# 			s = School(
+	# 				dbn=cols[0][:10],
+	# 				district=cols[1][:2],
+	# 				name=cols[2][:100],
+	# 				principal=cols[3][:100],
+	# 				progress_report_type=cols[4][:5],
+	# 				school_level=cols[5][:30],
+	# 				peer_index=float(cols[6] or 0),
+	# 				grade2012=cols[7][:1],
+	# 				score2012=cols[8],
+	# 				percent2012=cols[9],
+	# 				prog_score2012=cols[10],
+	# 				prog_grade2012=cols[11],
+	# 				perf_category2012=cols[12],
+	# 				perf_grade2012=cols[13],
+	# 				environ_score=cols[14],
+	# 				environ_grade=cols[15],
+	# 				readiness_score2012=cols[16],
+	# 				readiness_grade2012=cols[17],
+	# 				additional_credit2012=cols[18],
+	# 				prog_grade2011=cols[19],
+	# 				prog_grade2010=cols[20])
+	# 			s.save()
+	# 		except:
+	# 			print cols
+	# 			print traceback.print_exc(file=sys.stdout)
 
-	Teacher.objects.all().delete()
-	f2 = open('data/teachers_matched.csv')
-	for line in f2.readlines()[1:]:
-		cols = [item for item in line.split(',')][1:]
-		t = Teacher()
-		t.teacher_name_first_1 = ''.join([c for c in cols[0] if c != '"'])
-		t.teacher_name_last_1 = ''.join([c for c in cols[1] if c != '"'])
-		if cols[2] != 'NA':
-			t.teacher_id = cols[2]
-		t.dbn = ''.join([c for c in cols[-10] if c != '"'])
 
-		# t.dbn = ''.join([c for c in cols[0][:10] if c != '"'])
-		# t.school_name = cols[1]
-		# t.teacher_name_first_1 = ''.join([c for c in cols[2] if c != '"'])
-		# t.teacher_name_last_1 = ''.join([c for c in cols[3] if c != '"'])
-		# t.grade0708 = cols[-12]
-		# t.grade0809 = cols[-11]
-		# t.grade0910 = cols[-10]
-		# t.va_0506 = clean_num(cols[-5])
-		# t.va_0607 = clean_num(cols[-4])
-		# t.va_0708 = clean_num(cols[-3])
-		# t.va_0809 = clean_num(cols[-2])
-		# if cols[15] not in ('NA\n', 'NA'):
-		# 	t.va_0910 = cols[-1]
-		# s_list = School.objects.filter(dbn=t.dbn)
-		# if s_list:
-		# 	t.school = s_list[0]
-		try:
-			t.save()
-		except:
-			print traceback.print_exc(file=sys.stdout)
-
-	# Graduation.objects.all().delete()
-	# f3 = open('data/grads.csv')
-	# for line in f3.readlines():
-	# 	cols = [item for item in line.split(',')]
-	# 	g = Graduation()
-	# 	g.dbn = ''.join([c for c in cols[0][:10] if c != '"'])
-	# 	g.name = cols[1]
-	# 	g.grads_percent = cols[6].replace('%','')
-	# 	s_list = School.objects.filter(dbn=g.dbn)
+	# Teacher.objects.all().delete()
+	# csvfile = open('data/teachers_matched.csv', 'rb')
+	# csvreader = csv.reader(csvfile)
+	# i = -1
+	# for cols in csvreader:
+	# 	i+=1
+	# 	if i in [0]:
+	# 		continue
+	# 	cols = cols[1:]
+	# 	for i, col in enumerate(cols):
+	# 		cols[i] = (col or 0)
+	# 	t = Teacher()
+	# 	t.teacher_name_first_1 = ''.join([c for c in cols[0] if c != '"'])
+	# 	t.teacher_name_last_1 = ''.join([c for c in cols[1] if c != '"'])
+	# 	if cols[2] != 'NA':
+	# 		t.teacher_id = cols[2]
+	# 	t.dbn = ''.join([c for c in cols[-10] if c != '"'])
+	# 	t.grade0708 = cols[4]
+	# 	t.grade0809 = cols[5]
+	# 	t.grade0910 = cols[6]
+	# 	t.va_0506 = clean_num(cols[-16])
+	# 	t.va_0607 = clean_num(cols[-15])
+	# 	t.va_0708 = clean_num(cols[-14])
+	# 	t.va_0809 = clean_num(cols[-13])
+	# 	t.va_0910 = clean_num(cols[-12])
+	# 	s_list = School.objects.filter(dbn=t.dbn)
 	# 	if s_list:
-	# 		g.school = s_list[0]
+	# 		t.school = s_list[0]
 	# 	try:
-	# 		g.save()
+	# 		t.save()
 	# 	except:
 	# 		print traceback.print_exc(file=sys.stdout)
+
+	Graduation.objects.all().delete()
+	csvfile = open('data/grads.csv', 'rb')
+	csvreader = csv.reader(csvfile)
+	i = -1
+	for cols in csvreader:
+		i+=1
+		for i, col in enumerate(cols):
+			cols[i] = (col or 0)
+			if col == 's':
+				cols[i] = 0
+			if '%' in str(col):
+				cols[i] = col.replace('%', '')
+		g = Graduation()
+		g.dbn = ''.join([c for c in cols[0][:10] if c != '"'])
+		g.name = cols[1]
+		g.year = cols[2]
+		if '%' in str(cols[6]):
+			cols[6] = cols[6].replace('%','')
+		g.grads_percent = cols[6]
+		g.regents_num = cols[7]
+		g.regents_percent_total = cols[8]
+		g.regents_percent_grad = cols[9]
+		g.advregents_percent_grad = cols[12]
+		g.othregents_percent_grad = cols[15]
+		g.local_percent_grad = cols[18]
+		g.drop_percent = cols[-1]
+		s_list = School.objects.filter(dbn=g.dbn)
+		if s_list:
+			g.school = s_list[0]
+
+		g.drop_percent = cols[-1]
+
+		e_g = Graduation.objects.filter(dbn=g.dbn)
+		if not e_g:			
+			try:
+				g.save()
+			except:
+				print cols
+				print traceback.print_exc(file=sys.stdout)
 
 	# Demographic.objects.all().delete()
-	# f4 = open('data/demo.csv')
-	# for line in f4.readlines()[1:]:
-	# 	cols = [item for item in line.split(',')]
+	# csvfile = open('data/demo.csv', 'rb')
+	# csvreader = csv.reader(csvfile)
+	# i = -1
+	# for cols in csvreader:
+	# 	i+=1
+	# 	if i in [0]:
+	# 		continue
+	# 	for i, col in enumerate(cols):
+	# 		cols[i] = (col or 0)
 	# 	d = Demographic()
 	# 	d.dbn = ''.join([c for c in cols[0][:10] if c != '"'])
 	# 	d.name = cols[1]
 	# 	d.year = cols[2]
-	# 	#d.freelunch_reduced_percent = float(cols[4] or 0)
-	# 	# d.black_percent = cols[8]
+	# 	d.freelunch_reduced_percent = float(cols[4] or 0)
+	# 	d.asian_percent = cols[7]
+	# 	d.black_percent = cols[8]
+	# 	d.hispanic_percent = cols[9]
+	# 	d.white_percent = cols[10]
 	# 	try:
 	# 		d.save()
 	# 	except:
+	# 		print cols
 	# 		print traceback.print_exc(file=sys.stdout)
 
-	# schools = School.objects.all()
-	# teachers = Teacher.objects.all()
-	# grads = Graduation.objects.all()
 	return render(
     	request,
     	'index.html')
-	# ,
- #    	{'schools': schools,
- #    	'teachers': teachers,
- #    	'grads': grads})
 
 def clean_num(s):
 	if s in ('NA', 'NA\n', '', None):
-		return None
+		return 0
 	else:
 		return s
 

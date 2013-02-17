@@ -10,22 +10,80 @@
  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
- <script>
-	$(function() {
-	var availableTags = [
-	{% for school in schools %}
-	"{{ school.name }}",
-	{% endfor %}
-	];
-	$( "#schools" ).autocomplete({
-	source: availableTags
-	});
-	});
+
+<script type="text/javascript">
+  google.load("visualization", "1", {packages:["corechart"]});
+  google.setOnLoadCallback(drawChart);
+  function drawChart() {
+    var data = google.visualization.arrayToDataTable([
+      ['Year', 'Performance'],
+      [2006,  {{ teacher.va_0506 }}],
+      [2007,  {{ teacher.va_0607 }}],
+      [2008,  {{ teacher.va_0708 }}],
+      [2009,  {{ teacher.va_0809 }}],
+      [2010,  {{ teacher.va_0910 }}],
+    ]);
+
+    var options = {
+      title: 'Teacher Performance'
+    };
+
+    var chart = new google.visualization.ScatterChart(document.getElementById('chart_teacher'));
+    {% if teacher %}
+    chart.draw(data, options);
+    {% endif %}
+  }
 </script>
 
-</head>  
-<body>  
+<script type="text/javascript">
+  google.load("visualization", "1", {packages:["corechart"]});
+  google.setOnLoadCallback(drawChart);
+  function drawChart() {
+    var data = google.visualization.arrayToDataTable([
+      ['Race', 'Percent'],
+      ['Asian',     {{ demographic.asian_percent }}],
+      ['Hispanic',     {{ demographic.hispanic_percent }}],
+      ['White',  {{ demographic.white_percent }}],
+      ['Black', {{ demographic.black_percent }}]
+    ]);
+
+    var options = {
+      title: 'Racial Breakdown'
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById('chart_race'));
+    {% if demographic %}
+    chart.draw(data, options);
+    {% endif %}
+  }
+</script>
+
+<script type="text/javascript">
+  google.load("visualization", "1", {packages:["corechart"]});
+  google.setOnLoadCallback(drawChart);
+  function drawChart() {
+    var data = google.visualization.arrayToDataTable([
+      ['Type', 'Percent'],
+      ['Regular Graduate',     {{ graduation.grads_percent }}],
+      ['Regents',     {{ graduation.regents_percent_grad }}],
+      ['Advanced Regents',  {{ graduation.advregents_percent_grad }}],
+      ['Other Regents', {{ graduation.othregents_percent_grad }}]
+    ]);
+
+    var options = {
+      title: 'Graduation Rates'
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById('chart_grad'));
+    {% if graduation %}
+    chart.draw(data, options);
+    {% endif %}
+  }
+</script>
+
+<body>
 <div class="container">
 	<div class="row">
 		<div class="header">
@@ -35,54 +93,48 @@
 	
 	<div class="row">	
 		<div class="span10 offset1 explanation">
-		Measuring teacher quality is complicated. It is not only important to consider student
+		  Measuring teacher quality is complicated. It is not only important to consider student
     	performance, but also the context in which teachers are operating. The site below provides
     	New York City teacher rankings along with additional context to better understand the rankings
     	in the context of the environment.
 		</div>
 	</div>
-
-	<div class="row">
-		<div class="choose-grade">
-			<h3>Click a Grade</h3>
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="grades">
-	 	<button class="btn btn-success" type="button">Grade 4</button>
-	 	<button class="btn btn-success" type="button">Grade 5</button>
-	 	<button class="btn btn-success" type="button">Grade 6</button>
-	 	<button class="btn btn-success" type="button">Grade 7</button>
-	 	<button class="btn btn-success" type="button">Grade 8</button>	
- 	</div>
-
-	</div>
 	
 	<div class="row">
 		<div class="enter-school">
-        	<input id="schools" type="text" value="Enter a School Name" class="span3" style="margin: 0 auto;">
+			<form method="post" action="/home">
+        		<input id="schools" type="text" name="school" value="Enter a School Name" class="span3" onfocus="if(this.value == 'Enter a School Name') { this.value = ''; }"><br>
+        		<input class="btn" type="submit" value="Choose School"></input>
+        	</form
         </div>
 	</div>
 
 	<div class="row">
     	<div class="span6">
-        	<p class="school-name">{{ school.name }}</p>
+        	<p class="school-name nice">{{ school.name }}</p>
     	</div>
-    	<div class="span6 choose-a-teacher"> Choose a Teacher</div>
+    	<div class="span6 choose-a-teacher nice"> Choose a Teacher</div>
 	</div>
 
 	<div class="row">
-    	<div class="span6">
-        	<p class="overall-grade">Overall Grade  <!--enter data source here --></p>
-        	<p class="b">B</p>
-
+    	<div class="span6"  style="position: relative;">
+        	<p class="overall-grade nice">Overall Grade</p>
+        	<p class="b">{{ school.grade2012 }}</p>
+          <p>Peer Index: {{ school.peer_index }}</p>
+          {% if demographic %}
+          <p>% Free Lunch: {{ demographic.freelunch_reduced_percent }}%</p>
+          <div id="chart_race" style="position: absolute; left: 10px; top: 170px;" class="nice"></div>
+          {% endif %}
+          {% if graduation %}
+          <div id="chart_grad" style="position: absolute; left: 10px; top: 400px;" class="nice"></div>
+          {% endif %}
     	</div>
+
     	<div class="span6 teacher-list">
     		<ul>
     			{% for teacher in teachers %}
     			{% if teacher.teacher_id %}
-    			<li><a href="/home/{{ dbn }}/{{ teacher.teacher_id }}">{{ teacher.name }}</a> </li>
+    			<li><a href="/home/{{ dbn }}/{{ teacher.teacher_id }}">{{ teacher.name }}</a></li>
     			{% endif %}
     			{% endfor %}
     		</ul>
@@ -90,21 +142,29 @@
     	</div>
 	</div>
 
-	<div class="row">
-		<div class="span6 graduation-rate">
-			Graduation Rate
-		</div>
+	<div class="row" style="position: relative;">
 		<div class="span6 teacher-data">
 			{{ teacher.name }}
 		</div>
+    {% if teacher %}
+		<div id="chart_teacher" style="width: 500px; height: 400px; position: absolute; left: 490px; top: 50px;" class="nice"></div>
+    {% endif %}
 	</div>
-
-	
-
-
-
-
 		
 </div>
+
+ <script>
+  $(function() {
+  var availableTags = [
+  {% for school in schools %}
+  "{{ school.name }}",
+  {% endfor %}
+  ];
+  $( "#schools" ).autocomplete({
+  source: availableTags
+  });
+  });
+</script>
+
 </body>  
 </html>
