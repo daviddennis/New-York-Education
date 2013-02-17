@@ -24,6 +24,22 @@
 	});
 </script>
 
+<script>
+function parseForm() {
+    var email = document.getElementById('email').value;
+    if (isEmail(email))
+        alert("Thank you!");
+    else {
+        alert('Invalid Email Address');
+    }
+}
+
+function isEmail(email){
+        return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test( email );
+}
+
+</script>
+
 </head>  
 <body>  
 <div class="container">
@@ -108,48 +124,33 @@
         	<div class="span6 header">
            	 
             	<h4>In the News</h4>
-           	 
-            	<div class="row news">
-                	<div class="span5">
-                    	<h5><a href="http://studentsfirstny.org/index.cfm?objectid=05219010-7779-11E2-90B7000C296BA163">There is a Clear Path to Better Teacher Evaluations for NYC</a></h5>
-                	</div>
-            	</div>
-           	 
-            	<div class="row news">
-                	<div class="span1">
-                    	<img src="http://studentsfirstny.org/images/dmImage/ThumbnailImage/tn-nydn2.jpg" class="img-polaroid"><!-- INSERT ARTICLE IMAGE -->                   	 
-                	</div>
-                	<div class="span4 news-desc">
-                	NY Daily News // February 15, 2013 Last month, after leaders from the teachers' union and City failed to reach an agreement on a new teacher evaluation system,
-                	Governor Cuomo proposed a new plan to break the standstill. If the two sides cannot come to an agreement soon, Governor Cuomo said the state will step in and implement a plan for NYC.    
-                	</div>
-            	</div>
-           	 
-            	<div class="row news">
-                	<div class="span5">
-                    	<h5><a href="http://studentsfirstny.org/index.cfm?objectid=05219010-7779-11E2-90B7000C296BA163">There is a Clear Path to Better Teacher Evaluations for NYC</a></h5>
-                	</div>
-            	</div>
-           	 
-            	<div class="row news">
-                	<div class="span1">
-                    	<img src="http://studentsfirstny.org/images/dmImage/ThumbnailImage/tn-nydn2.jpg" class="img-polaroid"><!-- INSERT ARTICLE IMAGE -->                   	 
-                	</div>
-                	<div class="span4 news-desc">
-                	NY Daily News // February 15, 2013 Last month, after leaders from the teachers' union and City failed to reach an agreement on a new teacher evaluation system,
-                	Governor Cuomo proposed a new plan to break the standstill. If the two sides cannot come to an agreement soon, Governor Cuomo said the state will step in and implement a plan for NYC.    
-                	</div>
-            	</div>
+                {% for link in links %}
+                <div class="row news">
+                    <div class="span5">
+                        <h5><a href="{{link.url}}">{{links.title}}</a></h5>
+                    </div>
+                </div>
+                
+                <div class="row news">
+                    <div class="span1">
+                        <img src="{{link.thumbnail_url}}" class="img-polaroid" width="90" height="90">                       
+                    </div>
+                    <div class="span4 news-desc">
+                    {{link.description}}
+                    </div>
+                </div>
+                {% endfor %}
            	 
         	</div>
+        	
         	<div class="span6 header action">
-            	<h4>Get Involved</h4>
-            	<p>Write to your local Congressman.</p>
-            	<p>Sign up to receive updates.</p>
-            	<form class="form-inline">
-                	<input type="text" placeholder="Enter email"> <button class="btn btn-success">Sign Up!</button>
-            	</form>
-        	</div>
+                <h4>Get Involved</h4>
+                <p>Write to your local Congressman.</p>
+                <p>Sign up to receive updates.</p>
+                <form name="signup" class="form-inline" action="">
+                    <input id="email" name="email" type="text" placeholder="Enter email"> <button class="btn btn-success" onclick="parseForm()">Sign Up!</button>
+                </form>
+            	</div>
     	</div>
 </div>
 
