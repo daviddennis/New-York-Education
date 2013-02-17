@@ -1,4 +1,72 @@
-body {
+@charset "UTF-8";
+/* CSS Document */
+
+*{
+	margin: 0px;
+	padding: 0px;	
+	font-family: helvetica;
+
+}
+
+a{
+	color: blue;
+}
+body{
+background: #f7f7f7;
+}
+.header{
+text-align: center;
+font-size: 3em;
+margin-top: 20px;
+}
+
+
+.explanation{
+background: #ccc;
+margin-top: 15px;
+padding: 1%;
+
+}
+.choose-grade{
+text-align: center;
+}
+.grades{
+margin-left: 0;
+text-align: center;
+}
+.enter-school{
+	text-align: center;
+	margin-top: 10px;
+}
+.letter-styling {
 	background: green;
-	color: white;
+}
+.school-name{
+	text-align: center;
+	background: #ccc;
+}
+.choose-a-teacher{
+	text-align: center;
+	background: #ccc;
+}
+.overall-grade{
+	text-align: center;
+	background: #ccc;
+}
+.teacher-list{
+	text-align: center;
+	background: #ccc;
+}
+.teacher-list li{
+	list-style: none;
+}
+.b{
+	font-size: 3em;
+	text-align: center;
+	padding-top: 10px;
+}
+.graduation-rate{
+	background: #ccc;
+	height: 200px;
+	text-align: center;
 }

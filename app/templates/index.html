@@ -4,13 +4,17 @@
 		<link href="/static/base.css" rel="stylesheet" media="screen">
 	</head>
 	<body>
-		<div style="border-radius: 10px; border: 5px solid black; width: 200px; padding: 10px; margin: 10px;">
-		{% for event in events %}
-			<h1>{{ event.title }}</h1>
-			<p>{{ event.description }}</p>
-			<p>{{ event.created_at }}</p>
-			<div class="btn">Go!</div>
-		{% endfor %}
+		{% for school in schools %}
+		<div style="border-radius: 10px; border: 5px solid black; width: 100%; padding: 10px; margin: 10px;">
+			<h1>{{ school.name }}</h1>
+			<span>{{ school.dbn }}</span>
+			<span>{{ school.district }}</span>
+			<span>{{ school.principal }}</span>
+			<span>{{ school.progress_report_type }}</span>
+			<span>{{ school.school_level }}</span>
+			<br/><br/>
+			<div class="btn">School</div>
 		</div>
+		{% endfor %}
 	</body>
 </html>
